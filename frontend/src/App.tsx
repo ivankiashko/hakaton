@@ -188,16 +188,18 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+      <header className="glass border-b" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Home size={32} />
+              <Home size={32} style={{ color: 'var(--color-accent-primary)' }} />
               <div>
-                <h1 className="text-2xl font-bold">Планировщик ремонта</h1>
-                <p className="text-sm text-blue-100">
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-heading)' }}>
+                  Планировщик ремонта
+                </h1>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   Проверка перепланировки по законодательству РФ
                 </p>
               </div>
@@ -205,20 +207,38 @@ function App() {
             <div className="flex gap-2">
               <button
                 onClick={loadExample}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-lg text-sm flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all glow-primary-hover"
+                style={{
+                  border: '1px solid var(--color-accent-primary)',
+                  color: 'var(--color-accent-primary)',
+                  background: 'transparent'
+                }}
               >
                 <FileText size={18} />
                 Загрузить пример
               </button>
               <button
                 onClick={handleExport}
-                className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-lg text-sm flex items-center gap-2"
+                className="px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all glow-primary-hover"
                 disabled={walls.length === 0}
+                style={{
+                  border: walls.length === 0 ? '1px solid var(--color-text-disabled)' : '1px solid var(--color-accent-cyan)',
+                  color: walls.length === 0 ? 'var(--color-text-disabled)' : 'var(--color-accent-cyan)',
+                  background: 'transparent',
+                  cursor: walls.length === 0 ? 'not-allowed' : 'pointer'
+                }}
               >
                 <Download size={18} />
                 Экспорт
               </button>
-              <label className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded-lg text-sm flex items-center gap-2 cursor-pointer">
+              <label
+                className="px-4 py-2 rounded-lg text-sm flex items-center gap-2 cursor-pointer transition-all glow-primary-hover"
+                style={{
+                  border: '1px solid var(--color-accent-secondary)',
+                  color: 'var(--color-accent-secondary)',
+                  background: 'transparent'
+                }}
+              >
                 <Upload size={18} />
                 Импорт
                 <input
@@ -236,7 +256,7 @@ function App() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Settings */}
-        <div className="w-80 bg-white border-r border-gray-200 overflow-auto">
+        <div className="w-80 border-r overflow-auto" style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
           <div className="p-4">
             <ApartmentSettings settings={settings} onSettingsChange={handleSettingsChange} />
 
@@ -244,37 +264,50 @@ function App() {
               <button
                 onClick={handleAnalyze}
                 disabled={walls.length === 0}
-                className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 rounded-lg font-semibold transition-all glow-primary-hover"
+                style={{
+                  border: walls.length === 0 ? '1px solid var(--color-text-disabled)' : '2px solid var(--color-accent-primary)',
+                  color: walls.length === 0 ? 'var(--color-text-disabled)' : 'var(--color-accent-primary)',
+                  background: 'transparent',
+                  cursor: walls.length === 0 ? 'not-allowed' : 'pointer'
+                }}
               >
                 Анализировать план
               </button>
               <button
                 onClick={handleClear}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                className="w-full px-4 py-2 rounded-lg transition-all"
+                style={{
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text-secondary)',
+                  background: 'transparent'
+                }}
               >
                 Очистить
               </button>
             </div>
 
             {/* Stats */}
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-semibold text-sm mb-3">Статистика</h4>
+            <div className="mt-6 p-4 glass rounded-lg">
+              <h4 className="font-semibold text-sm mb-3" style={{ color: 'var(--color-text-heading)' }}>
+                Статистика
+              </h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Стен:</span>
-                  <span className="font-semibold">{walls.length}</span>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Стен:</span>
+                  <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{walls.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Дверей:</span>
-                  <span className="font-semibold">{doors.length}</span>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Дверей:</span>
+                  <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{doors.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Окон:</span>
-                  <span className="font-semibold">{windows.length}</span>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Окон:</span>
+                  <span className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{windows.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Несущих стен:</span>
-                  <span className="font-semibold text-red-600">
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Несущих стен:</span>
+                  <span className="font-semibold" style={{ color: 'var(--color-critical)' }}>
                     {walls.filter(w => w.type === WallType.LOAD_BEARING).length}
                   </span>
                 </div>
@@ -286,55 +319,64 @@ function App() {
         {/* Center - Tabs */}
         <div className="flex-1 flex flex-col">
           {/* Tabs */}
-          <div className="bg-white border-b border-gray-200">
+          <div className="border-b" style={{ backgroundColor: 'var(--color-bg-secondary)', borderColor: 'var(--color-border)' }}>
             <div className="flex overflow-x-auto">
               <button
                 onClick={() => setActiveTab('editor')}
-                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === 'editor'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className="px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap transition-all"
+                style={{
+                  borderBottom: activeTab === 'editor' ? '3px solid var(--color-accent-primary)' : 'none',
+                  color: activeTab === 'editor' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  background: 'transparent'
+                }}
               >
                 <FileText size={18} />
                 Редактор 2D
               </button>
               <button
                 onClick={() => setActiveTab('3d')}
-                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === '3d'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className="px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap transition-all"
+                style={{
+                  borderBottom: activeTab === '3d' ? '3px solid var(--color-accent-primary)' : 'none',
+                  color: activeTab === '3d' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  background: 'transparent'
+                }}
               >
                 <Box size={18} />
                 3D визуализация
               </button>
               <button
                 onClick={() => setActiveTab('analysis')}
-                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === 'analysis'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className="px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap transition-all"
+                style={{
+                  borderBottom: activeTab === 'analysis' ? '3px solid var(--color-accent-primary)' : 'none',
+                  color: activeTab === 'analysis' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  background: 'transparent'
+                }}
               >
                 <FileCheck size={18} />
                 Анализ
                 {analysisResult && (
-                  <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                    analysisResult.isLegal ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span
+                    className="ml-2 px-2 py-1 text-xs rounded-full"
+                    style={{
+                      backgroundColor: analysisResult.isLegal ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                      color: analysisResult.isLegal ? 'var(--color-success)' : 'var(--color-critical)',
+                      border: `1px solid ${analysisResult.isLegal ? 'var(--color-success)' : 'var(--color-critical)'}`
+                    }}
+                  >
                     {analysisResult.warnings.length}
                   </span>
                 )}
               </button>
               <button
                 onClick={() => setActiveTab('documents')}
-                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === 'documents'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                className="px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap transition-all"
+                style={{
+                  borderBottom: activeTab === 'documents' ? '3px solid var(--color-accent-primary)' : 'none',
+                  color: activeTab === 'documents' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  background: 'transparent'
+                }}
               >
                 <FileText size={18} />
                 Документы
@@ -356,15 +398,15 @@ function App() {
             )}
 
             {activeTab === '3d' && (
-              <div className="h-full p-4 overflow-auto">
+              <div className="h-full p-4 overflow-auto" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
                 {walls.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center">
-                      <Box className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                      <Box className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--color-text-disabled)' }} />
+                      <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                         3D визуализация недоступна
                       </h3>
-                      <p className="text-gray-500">
+                      <p style={{ color: 'var(--color-text-secondary)' }}>
                         Сначала создайте план в редакторе 2D
                       </p>
                     </div>
@@ -372,7 +414,7 @@ function App() {
                 ) : (
                   <Suspense fallback={
                     <div className="flex items-center justify-center h-full">
-                      <div className="text-gray-500">Загрузка 3D визуализации...</div>
+                      <div style={{ color: 'var(--color-text-secondary)' }}>Загрузка 3D визуализации...</div>
                     </div>
                   }>
                     <FloorPlan3D plan={{ ...settings, walls, doors, windows, rooms }} />
@@ -386,11 +428,13 @@ function App() {
             )}
 
             {activeTab === 'documents' && (
-              <div className="h-full p-6 overflow-auto bg-gray-50">
+              <div className="h-full p-6 overflow-auto" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
                 <div className="max-w-4xl mx-auto space-y-6">
                   <div>
-                    <h2 className="text-2xl font-bold mb-2">Генерация документов</h2>
-                    <p className="text-gray-600">
+                    <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--color-text-heading)' }}>
+                      Генерация документов
+                    </h2>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>
                       Заполните данные для автоматической генерации документов по российским стандартам
                     </p>
                   </div>
@@ -412,11 +456,11 @@ function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-gray-300 py-3 px-4 text-center text-sm">
-        <p>
+      <footer className="glass border-t py-3 px-4 text-center text-sm" style={{ borderColor: 'var(--color-border)' }}>
+        <p style={{ color: 'var(--color-text-secondary)' }}>
           © 2024 Планировщик ремонта | Все данные основаны на ЖК РФ, СНиП, СанПиН |{' '}
-          <span className="text-yellow-400">
-            ⚠️ Для точного анализа обратитесь к специалистам
+          <span style={{ color: 'var(--color-caution)' }}>
+            Для точного анализа обратитесь к специалистам
           </span>
         </p>
       </footer>

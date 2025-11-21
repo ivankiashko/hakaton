@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0F1117;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -22,9 +22,12 @@
         }
 
         .container {
-            background: white;
+            background: rgba(26, 29, 41, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
             max-width: 900px;
             width: 100%;
             overflow: hidden;
@@ -43,8 +46,9 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(99, 102, 241, 0.15);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+            color: #F9FAFB;
             padding: 40px;
             text-align: center;
         }
@@ -64,11 +68,13 @@
         }
 
         .status-card {
-            background: #f8f9fa;
+            background: rgba(36, 40, 51, 0.5);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 30px;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #6366F1;
+            color: #E5E7EB;
         }
 
         .status-indicator {
@@ -114,8 +120,10 @@
         }
 
         .link-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(99, 102, 241, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #E5E7EB;
             padding: 25px;
             border-radius: 15px;
             text-decoration: none;
@@ -125,7 +133,7 @@
 
         .link-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
         }
 
         .link-card h3 {
@@ -139,16 +147,22 @@
         }
 
         .features {
-            background: #f8f9fa;
+            background: rgba(36, 40, 51, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 30px;
         }
 
         .features h2 {
-            color: #667eea;
+            color: #A78BFA;
             margin-bottom: 20px;
             font-size: 1.8em;
+        }
+
+        .features ul {
+            color: #9CA3AF;
         }
 
         .features ul {
@@ -171,22 +185,30 @@
         }
 
         .instructions {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
+            background: rgba(234, 179, 8, 0.1);
+            border: 2px solid #EAB308;
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 30px;
         }
 
         .instructions h3 {
-            color: #856404;
+            color: #FDE047;
             margin-bottom: 15px;
             font-size: 1.5em;
         }
 
         .instructions ol {
             padding-left: 20px;
-            color: #856404;
+            color: #E5E7EB;
+        }
+
+        .instructions p {
+            color: #9CA3AF;
+        }
+
+        .instructions h4 {
+            color: #FDE047;
         }
 
         .instructions li {
@@ -204,8 +226,8 @@
         .footer {
             text-align: center;
             padding: 20px;
-            color: #666;
-            border-top: 1px solid #eee;
+            color: #9CA3AF;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .loading {
@@ -226,20 +248,20 @@
 
         .button {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: transparent;
+            border: 1px solid #6366F1;
+            color: #6366F1;
             padding: 15px 30px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: bold;
-            transition: transform 0.3s;
-            border: none;
+            transition: all 0.3s;
             cursor: pointer;
             font-size: 1em;
         }
 
         .button:hover {
-            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
         }
 
         .auto-redirect {
@@ -257,7 +279,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏗️ Планировщик ремонта</h1>
+            <h1>Планировщик ремонта</h1>
             <p>Умный цифровой сервис для планирования перепланировки квартир</p>
         </div>
 
@@ -272,24 +294,24 @@
             </div>
 
             <div id="autoRedirectMessage" style="display: none;" class="auto-redirect">
-                ✓ Приложение запущено! Автоматическое перенаправление через <span id="countdown">3</span> секунд...
+                Приложение запущено! Автоматическое перенаправление через <span id="countdown">3</span> секунд...
             </div>
 
             <div class="links-grid">
                 <a href="http://localhost:5173" target="_blank" class="link-card" id="frontendLink">
-                    <h3>🎨 Frontend</h3>
+                    <h3>Frontend</h3>
                     <p>Интерактивный редактор планировок с 3D визуализацией</p>
                     <p style="margin-top: 10px; font-size: 0.9em;">localhost:5173</p>
                 </a>
 
                 <a href="http://localhost:8000/docs" target="_blank" class="link-card">
-                    <h3>📚 API Docs</h3>
+                    <h3>API Docs</h3>
                     <p>Документация FastAPI с интерактивными примерами</p>
                     <p style="margin-top: 10px; font-size: 0.9em;">localhost:8000/docs</p>
                 </a>
 
                 <a href="http://localhost:8000/api/rules" target="_blank" class="link-card">
-                    <h3>⚖️ Rules API</h3>
+                    <h3>Rules API</h3>
                     <p>База правил законодательства РФ по перепланировке</p>
                     <p style="margin-top: 10px; font-size: 0.9em;">localhost:8000/api/rules</p>
                 </a>
@@ -334,13 +356,13 @@
             </div>
 
             <div style="text-align: center; margin-top: 30px;">
-                <button class="button" onclick="checkStatus()">🔄 Проверить статус</button>
+                <button class="button" onclick="checkStatus()">Проверить статус</button>
             </div>
         </div>
 
         <div class="footer">
             <p><strong>Планировщик ремонта</strong> — Хакатон "Первый хакатон 5 сезона"</p>
-            <p style="margin-top: 10px;">Сделано с ❤️ для упрощения жизни миллионов людей</p>
+            <p style="margin-top: 10px;">Сделано для упрощения жизни миллионов людей</p>
         </div>
     </div>
 

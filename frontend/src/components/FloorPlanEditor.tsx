@@ -136,7 +136,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
         <Line
           key={`v-${i}`}
           points={[i, 0, i, height]}
-          stroke="#e0e0e0"
+          stroke="#1F2937"
           strokeWidth={1}
         />
       );
@@ -148,7 +148,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
         <Line
           key={`h-${i}`}
           points={[0, i, width, i]}
-          stroke="#e0e0e0"
+          stroke="#1F2937"
           strokeWidth={1}
         />
       );
@@ -229,47 +229,51 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Панель инструментов */}
-      <div className="bg-white border-b border-gray-200 p-4">
+      <div className="glass border-b p-4" style={{ borderColor: 'var(--color-border)' }}>
         <div className="flex gap-2 items-center flex-wrap">
           <button
             onClick={() => setTool('select')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              tool === 'select'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+            style={{
+              border: tool === 'select' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border)',
+              color: tool === 'select' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+              background: 'transparent'
+            }}
           >
             Выбрать
           </button>
           <button
             onClick={() => setTool('wall')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              tool === 'wall'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+            style={{
+              border: tool === 'wall' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border)',
+              color: tool === 'wall' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+              background: 'transparent'
+            }}
           >
             <Home size={18} />
             Стена
           </button>
           <button
             onClick={() => setTool('door')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              tool === 'door'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+            style={{
+              border: tool === 'door' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border)',
+              color: tool === 'door' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+              background: 'transparent'
+            }}
           >
             <Plus size={18} />
             Дверь
           </button>
           <button
             onClick={() => setTool('window')}
-            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-              tool === 'window'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all"
+            style={{
+              border: tool === 'window' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border)',
+              color: tool === 'window' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+              background: 'transparent'
+            }}
           >
             <Plus size={18} />
             Окно
@@ -279,7 +283,12 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
             <select
               value={wallType}
               onChange={(e) => setWallType(e.target.value as WallType)}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
+              className="px-4 py-2 rounded-lg"
+              style={{
+                backgroundColor: 'var(--color-bg-elevated)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)'
+              }}
             >
               <option value={WallType.NON_LOAD_BEARING}>Ненесущая стена</option>
               <option value={WallType.LOAD_BEARING}>Несущая стена</option>
@@ -290,14 +299,19 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
           {selectedWallId && (
             <button
               onClick={deleteSelectedWall}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg flex items-center gap-2 hover:bg-red-600"
+              className="px-4 py-2 rounded-lg flex items-center gap-2 transition-all glow-critical"
+              style={{
+                border: '1px solid var(--color-critical)',
+                color: 'var(--color-critical)',
+                background: 'transparent'
+              }}
             >
               <Trash2 size={18} />
               Удалить
             </button>
           )}
         </div>
-        <div className="mt-2 text-sm text-gray-600">
+        <div className="mt-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
           {tool === 'wall' && 'Нажмите и протяните, чтобы нарисовать стену'}
           {tool === 'door' && 'Нажмите на стену, чтобы добавить дверь'}
           {tool === 'window' && 'Нажмите на стену, чтобы добавить окно'}
@@ -306,7 +320,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
       </div>
 
       {/* Canvas */}
-      <div className="flex-1 bg-gray-50 overflow-auto">
+      <div className="flex-1 overflow-auto" style={{ backgroundColor: '#0F1117' }}>
         <Stage
           width={800}
           height={600}
@@ -326,7 +340,7 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
             {currentLine && (
               <Line
                 points={[currentLine.x1, currentLine.y1, currentLine.x2, currentLine.y2]}
-                stroke="#3b82f6"
+                stroke="#6366F1"
                 strokeWidth={wallType === WallType.LOAD_BEARING ? 10 : 5}
                 dash={[10, 5]}
               />
@@ -342,23 +356,23 @@ export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({
       </div>
 
       {/* Легенда */}
-      <div className="bg-white border-t border-gray-200 p-4">
+      <div className="glass border-t p-4" style={{ borderColor: 'var(--color-border)' }}>
         <div className="flex gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-2 bg-red-500"></div>
-            <span>Несущие стены</span>
+            <div className="w-8 h-2" style={{ backgroundColor: 'var(--color-critical)' }}></div>
+            <span style={{ color: 'var(--color-text-primary)' }}>Несущие стены</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-2 bg-slate-400"></div>
-            <span>Ненесущие стены</span>
+            <div className="w-8 h-2" style={{ backgroundColor: '#94a3b8' }}></div>
+            <span style={{ color: 'var(--color-text-primary)' }}>Ненесущие стены</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-4 bg-yellow-400 border-2 border-yellow-600"></div>
-            <span>Двери</span>
+            <div className="w-8 h-4" style={{ backgroundColor: '#fbbf24', border: '2px solid #f59e0b' }}></div>
+            <span style={{ color: 'var(--color-text-primary)' }}>Двери</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-4 bg-blue-400 border-2 border-blue-600"></div>
-            <span>Окна</span>
+            <div className="w-8 h-4" style={{ backgroundColor: '#60a5fa', border: '2px solid #3b82f6' }}></div>
+            <span style={{ color: 'var(--color-text-primary)' }}>Окна</span>
           </div>
         </div>
       </div>
