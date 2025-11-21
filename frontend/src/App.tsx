@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { FloorPlanEditor } from './components/FloorPlanEditor';
 import { AnalysisPanel } from './components/AnalysisPanel';
 import { ApartmentSettings } from './components/ApartmentSettings';
+import { OwnerDataForm, ApartmentDataForm, OwnerData, ApartmentData } from './components/OwnerDataForm';
+import { DocumentGenerator } from './components/DocumentGenerator';
 import {
   FloorPlan,
   Wall,
@@ -13,7 +15,10 @@ import {
   WallType,
 } from './types';
 import { api } from './api/client';
-import { Home, FileText, Download, Upload } from 'lucide-react';
+import { Home, FileText, Download, Upload, Box, FileCheck } from 'lucide-react';
+
+// Lazy load 3D component
+const FloorPlan3D = React.lazy(() => import('./components/FloorPlan3D'));
 
 function App() {
   const [walls, setWalls] = useState<Wall[]>([]);
@@ -33,7 +38,28 @@ function App() {
 
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'editor' | 'analysis'>('editor');
+  const [activeTab, setActiveTab] = useState<'editor' | 'analysis' | '3d' | 'documents'>('editor');
+
+  // Данные для документов
+  const [ownerData, setOwnerData] = useState<OwnerData>({
+    full_name: '',
+    passport_series: '',
+    passport_number: '',
+    passport_issued_by: '',
+    passport_issued_date: '',
+    phone: '',
+    email: '',
+    registration_address: ''
+  });
+
+  const [apartmentData, setApartmentData] = useState<ApartmentData>({
+    address: '',
+    apartment_number: '',
+    cadastral_number: '',
+    total_area: '',
+    building_year: '',
+    building_series: ''
+  });
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -261,26 +287,39 @@ function App() {
         <div className="flex-1 flex flex-col">
           {/* Tabs */}
           <div className="bg-white border-b border-gray-200">
-            <div className="flex">
+            <div className="flex overflow-x-auto">
               <button
                 onClick={() => setActiveTab('editor')}
-                className={`px-6 py-3 font-semibold ${
+                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
                   activeTab === 'editor'
                     ? 'border-b-2 border-blue-600 text-blue-600'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                Редактор планировки
+                <FileText size={18} />
+                Редактор 2D
+              </button>
+              <button
+                onClick={() => setActiveTab('3d')}
+                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
+                  activeTab === '3d'
+                    ? 'border-b-2 border-blue-600 text-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Box size={18} />
+                3D визуализация
               </button>
               <button
                 onClick={() => setActiveTab('analysis')}
-                className={`px-6 py-3 font-semibold ${
+                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
                   activeTab === 'analysis'
                     ? 'border-b-2 border-blue-600 text-blue-600'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
-                Результаты анализа
+                <FileCheck size={18} />
+                Анализ
                 {analysisResult && (
                   <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
                     analysisResult.isLegal ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -289,12 +328,23 @@ function App() {
                   </span>
                 )}
               </button>
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={`px-6 py-3 font-semibold flex items-center gap-2 whitespace-nowrap ${
+                  activeTab === 'documents'
+                    ? 'border-b-2 border-blue-600 text-blue-600'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <FileText size={18} />
+                Документы
+              </button>
             </div>
           </div>
 
           {/* Tab Content */}
           <div className="flex-1 overflow-hidden">
-            {activeTab === 'editor' ? (
+            {activeTab === 'editor' && (
               <FloorPlanEditor
                 walls={walls}
                 doors={doors}
@@ -303,8 +353,59 @@ function App() {
                 onDoorsChange={setDoors}
                 onWindowsChange={setWindows}
               />
-            ) : (
+            )}
+
+            {activeTab === '3d' && (
+              <div className="h-full p-4 overflow-auto">
+                {walls.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <Box className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                        3D визуализация недоступна
+                      </h3>
+                      <p className="text-gray-500">
+                        Сначала создайте план в редакторе 2D
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-gray-500">Загрузка 3D визуализации...</div>
+                    </div>
+                  }>
+                    <FloorPlan3D plan={{ ...settings, walls, doors, windows, rooms }} />
+                  </Suspense>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'analysis' && (
               <AnalysisPanel result={analysisResult} loading={loading} />
+            )}
+
+            {activeTab === 'documents' && (
+              <div className="h-full p-6 overflow-auto bg-gray-50">
+                <div className="max-w-4xl mx-auto space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold mb-2">Генерация документов</h2>
+                    <p className="text-gray-600">
+                      Заполните данные для автоматической генерации документов по российским стандартам
+                    </p>
+                  </div>
+
+                  <OwnerDataForm data={ownerData} onChange={setOwnerData} />
+                  <ApartmentDataForm data={apartmentData} onChange={setApartmentData} />
+
+                  <DocumentGenerator
+                    plan={{ ...settings, walls, doors, windows, rooms }}
+                    analysis={analysisResult}
+                    ownerData={ownerData}
+                    apartmentData={apartmentData}
+                  />
+                </div>
+              </div>
             )}
           </div>
         </div>

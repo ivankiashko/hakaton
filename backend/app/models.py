@@ -105,3 +105,35 @@ class AnalysisResult(BaseModel):
     recommendations: List[str]
     estimatedApprovalTime: Optional[str] = None
     estimatedCost: Optional[str] = None
+
+
+class OwnerData(BaseModel):
+    """Данные собственника квартиры"""
+    full_name: str
+    passport_series: str
+    passport_number: str
+    passport_issued_by: str
+    passport_issued_date: str
+    phone: str
+    email: str
+    registration_address: Optional[str] = None
+
+
+class ApartmentData(BaseModel):
+    """Данные квартиры"""
+    address: str
+    apartment_number: str
+    cadastral_number: str
+    total_area: str
+    building_year: Optional[str] = None
+    building_series: Optional[str] = None
+
+
+class DocumentRequest(BaseModel):
+    """Запрос на генерацию документов"""
+    apartment_data: ApartmentData
+    owner_data: OwnerData
+    plan: FloorPlan
+    analysis: AnalysisResult
+    document_type: Literal["application", "technical_conclusion", "completion_act", "bti_application", "checklist"]
+    completion_date: Optional[str] = None
