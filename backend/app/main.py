@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .models import RenovationPlan, AnalysisResult, FloorPlan
+from fastapi.responses import PlainTextResponse
+from .models import RenovationPlan, AnalysisResult, FloorPlan, DocumentRequest, OwnerData, ApartmentData
 from .analyzer import RenovationAnalyzer
+from .document_generator import DocumentGenerator
 import json
 from pathlib import Path
 
@@ -20,8 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Инициализация анализатора
+# Инициализация анализатора и генератора документов
 analyzer = RenovationAnalyzer()
+doc_generator = DocumentGenerator()
 
 
 @app.get("/")
@@ -131,6 +134,98 @@ async def quick_check(action: dict):
         "isLegal": result.isLegal,
         "requiresApproval": result.requiresApproval,
         "mainWarning": result.warnings[0] if result.warnings else None
+    }
+
+
+@app.post("/api/generate-document", response_class=PlainTextResponse)
+async def generate_document(request: DocumentRequest):
+    """
+    Генерация документов для перепланировки по российским стандартам
+
+    Типы документов:
+    - application: Заявление на перепланировку
+    - technical_conclusion: Техническое заключение
+    - completion_act: Акт о завершении перепланировки
+    - bti_application: Заявление в БТИ
+    - checklist: Чек-лист документов
+    """
+    try:
+        apartment_data_dict = request.apartment_data.model_dump()
+        owner_data_dict = request.owner_data.model_dump()
+
+        if request.document_type == "application":
+            document = doc_generator.generate_application(
+                apartment_data_dict,
+                owner_data_dict,
+                request.plan,
+                request.analysis
+            )
+        elif request.document_type == "technical_conclusion":
+            document = doc_generator.generate_technical_conclusion(
+                apartment_data_dict,
+                request.plan,
+                request.analysis
+            )
+        elif request.document_type == "completion_act":
+            completion_date = request.completion_date or doc_generator.current_date
+            document = doc_generator.generate_completion_act(
+                apartment_data_dict,
+                owner_data_dict,
+                completion_date
+            )
+        elif request.document_type == "bti_application":
+            document = doc_generator.generate_bti_application(
+                apartment_data_dict,
+                owner_data_dict
+            )
+        elif request.document_type == "checklist":
+            document = doc_generator.generate_document_checklist()
+        else:
+            raise HTTPException(status_code=400, detail="Invalid document type")
+
+        return document
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/document-types")
+async def get_document_types():
+    """
+    Получить список доступных типов документов
+    """
+    return {
+        "document_types": [
+            {
+                "id": "application",
+                "name": "Заявление на перепланировку",
+                "description": "Заявление в жилищную инспекцию о согласовании перепланировки (ПП РФ №266)",
+                "requires_analysis": True
+            },
+            {
+                "id": "technical_conclusion",
+                "name": "Техническое заключение",
+                "description": "Техническое заключение о возможности и безопасности перепланировки",
+                "requires_analysis": True
+            },
+            {
+                "id": "completion_act",
+                "name": "Акт о завершении перепланировки",
+                "description": "Акт приемочной комиссии о завершенной перепланировке",
+                "requires_analysis": False
+            },
+            {
+                "id": "bti_application",
+                "name": "Заявление в БТИ",
+                "description": "Заявление о внесении изменений в технический паспорт",
+                "requires_analysis": False
+            },
+            {
+                "id": "checklist",
+                "name": "Чек-лист документов",
+                "description": "Полный список необходимых документов для всех этапов",
+                "requires_analysis": False
+            }
+        ]
     }
 
 
