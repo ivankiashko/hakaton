@@ -3,17 +3,144 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Темная палитра */
+  --color-bg-primary: #0F1117;
+  --color-bg-secondary: #1A1D29;
+  --color-bg-elevated: #242833;
+  --color-border: rgba(55, 65, 81, 0.3);
+
+  /* Текст */
+  --color-text-primary: #E5E7EB;
+  --color-text-secondary: #9CA3AF;
+  --color-text-heading: #F9FAFB;
+  --color-text-disabled: #6B7280;
+
+  /* Акценты */
+  --color-accent-primary: #6366F1;
+  --color-accent-secondary: #8B5CF6;
+  --color-accent-tertiary: #A855F7;
+  --color-accent-cyan: #06B6D4;
+
+  /* Статусы */
+  --color-critical: #EF4444;
+  --color-warning: #F97316;
+  --color-caution: #EAB308;
+  --color-info: #3B82F6;
+  --color-success: #10B981;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(26, 29, 41, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px);
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* Glassmorphism эффект */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+}
+
+/* Неоновое свечение */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+.glow-primary-hover:hover {
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+}
+
+.glow-critical {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-elevated);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+/* Переопределение Tailwind классов для темной темы */
+.bg-white {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.bg-gray-50 {
+  background-color: var(--color-bg-primary) !important;
+}
+
+.bg-gray-100 {
+  background-color: var(--color-bg-elevated) !important;
+}
+
+.text-gray-600,
+.text-gray-700 {
+  color: var(--color-text-secondary) !important;
+}
+
+.text-gray-900 {
+  color: var(--color-text-heading) !important;
+}
+
+.border-gray-200,
+.border-gray-300 {
+  border-color: var(--color-border) !important;
+}
+
+.shadow-md,
+.shadow-sm {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+input,
+select,
+textarea {
+  background-color: var(--color-bg-elevated) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-disabled) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: var(--color-accent-primary) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
 }
