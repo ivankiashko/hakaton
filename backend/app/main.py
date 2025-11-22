@@ -1,11 +1,26 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from .models import RenovationPlan, AnalysisResult, FloorPlan, DocumentRequest, OwnerData, ApartmentData
 from .analyzer import RenovationAnalyzer
 from .document_generator import DocumentGenerator
+from .config import settings
 import json
+import logging
 from pathlib import Path
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Rate limiter
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title="Планировщик ремонта API",
@@ -13,13 +28,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS
+# Добавляем rate limiter в state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS - ограничиваем доступ только для разрешенных origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
+    max_age=3600,
 )
 
 # Инициализация анализатора и генератора документов
@@ -27,8 +47,38 @@ analyzer = RenovationAnalyzer()
 doc_generator = DocumentGenerator()
 
 
+# Глобальная обработка исключений
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Обработка всех необработанных исключений"""
+    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+
+    # В production не показываем детали ошибки
+    if settings.is_production:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Внутренняя ошибка сервера"}
+        )
+    else:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": str(exc)}
+        )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Логирование HTTP исключений"""
+    logger.warning(f"HTTP {exc.status_code}: {exc.detail} - {request.url}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
+
+
 @app.get("/")
-async def root():
+@limiter.limit("30/minute")
+async def root(request: Request):
     return {
         "message": "Планировщик ремонта API",
         "version": "1.0.0",
@@ -41,19 +91,24 @@ async def root():
 
 
 @app.post("/api/analyze", response_model=AnalysisResult)
-async def analyze_renovation(plan: RenovationPlan):
+@limiter.limit("20/minute")
+async def analyze_renovation(request: Request, plan: RenovationPlan):
     """
     Анализ плана перепланировки на соответствие законодательству РФ
     """
     try:
+        logger.info(f"Analyzing renovation plan: {plan.description}")
         result = analyzer.analyze(plan)
+        logger.info(f"Analysis complete. Legal: {result.isLegal}, Requires approval: {result.requiresApproval}")
         return result
     except Exception as e:
+        logger.error(f"Error analyzing plan: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/rules")
-async def get_rules():
+@limiter.limit("30/minute")
+async def get_rules(request: Request):
     """
     Получить все правила и законодательные требования
     """
@@ -64,7 +119,8 @@ async def get_rules():
 
 
 @app.get("/api/rules/{category}")
-async def get_rule_category(category: str):
+@limiter.limit("30/minute")
+async def get_rule_category(request: Request, category: str):
     """
     Получить правила по категории
     """
@@ -79,7 +135,8 @@ async def get_rule_category(category: str):
 
 
 @app.get("/api/examples")
-async def get_examples():
+@limiter.limit("30/minute")
+async def get_examples(request: Request):
     """
     Примеры типовых планировок
     """
@@ -108,7 +165,8 @@ async def get_examples():
 
 
 @app.post("/api/quick-check")
-async def quick_check(action: dict):
+@limiter.limit("30/minute")
+async def quick_check(request: Request, action: dict):
     """
     Быстрая проверка одного действия
     """
@@ -138,7 +196,8 @@ async def quick_check(action: dict):
 
 
 @app.post("/api/generate-document", response_class=PlainTextResponse)
-async def generate_document(request: DocumentRequest):
+@limiter.limit("10/minute")
+async def generate_document(request: Request, doc_request: DocumentRequest):
     """
     Генерация документов для перепланировки по российским стандартам
 
@@ -150,46 +209,52 @@ async def generate_document(request: DocumentRequest):
     - checklist: Чек-лист документов
     """
     try:
-        apartment_data_dict = request.apartment_data.model_dump()
-        owner_data_dict = request.owner_data.model_dump()
+        logger.info(f"Generating document type: {doc_request.document_type}")
+        apartment_data_dict = doc_request.apartment_data.model_dump()
+        owner_data_dict = doc_request.owner_data.model_dump()
 
-        if request.document_type == "application":
+        if doc_request.document_type == "application":
             document = doc_generator.generate_application(
                 apartment_data_dict,
                 owner_data_dict,
-                request.plan,
-                request.analysis
+                doc_request.plan,
+                doc_request.analysis
             )
-        elif request.document_type == "technical_conclusion":
+        elif doc_request.document_type == "technical_conclusion":
             document = doc_generator.generate_technical_conclusion(
                 apartment_data_dict,
-                request.plan,
-                request.analysis
+                doc_request.plan,
+                doc_request.analysis
             )
-        elif request.document_type == "completion_act":
-            completion_date = request.completion_date or doc_generator.current_date
+        elif doc_request.document_type == "completion_act":
+            completion_date = doc_request.completion_date or doc_generator.current_date
             document = doc_generator.generate_completion_act(
                 apartment_data_dict,
                 owner_data_dict,
                 completion_date
             )
-        elif request.document_type == "bti_application":
+        elif doc_request.document_type == "bti_application":
             document = doc_generator.generate_bti_application(
                 apartment_data_dict,
                 owner_data_dict
             )
-        elif request.document_type == "checklist":
+        elif doc_request.document_type == "checklist":
             document = doc_generator.generate_document_checklist()
         else:
             raise HTTPException(status_code=400, detail="Invalid document type")
 
+        logger.info(f"Document generated successfully")
         return document
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error(f"Error generating document: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/document-types")
-async def get_document_types():
+@limiter.limit("30/minute")
+async def get_document_types(request: Request):
     """
     Получить список доступных типов документов
     """
@@ -230,7 +295,8 @@ async def get_document_types():
 
 
 @app.get("/health")
-async def health_check():
+@limiter.limit("60/minute")
+async def health_check(request: Request):
     """Проверка работоспособности API"""
     return {"status": "healthy", "service": "renovation-planner"}
 
