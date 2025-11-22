@@ -37,6 +37,16 @@ Thumbs.db
 frontend/dist/
 frontend/build/
 
+# Electron build output
+dist/
+*.exe
+*.dmg
+*.AppImage
+*.deb
+
+# Keep build resources (icons, etc)
+!build/
+
 # Logs
 *.log
 logs/
