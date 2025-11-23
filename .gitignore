@@ -10,12 +10,20 @@ ENV/
 *.egg-info/
 dist/
 build/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.mypy_cache/
+.tox/
 
 # Node
 node_modules/
 npm-debug.log
 yarn-error.log
 .pnpm-debug.log
+coverage/
+.vitest/
 
 # Environment
 .env
